@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/itantik/react-async-cases.git"
+    "url": "git+https://github.com/itantik/react-async-cases.git"
   },
   "homepage": "https://github.com/itantik/react-async-cases",
   "type": "module",
