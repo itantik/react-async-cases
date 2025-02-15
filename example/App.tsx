@@ -29,7 +29,7 @@ export function App() {
           state management libraries.
         </p>
         <p className="note">
-          Asynchronous requests are simulated with random delays to emphasize the penging phase.
+          Asynchronous requests are simulated with random delays to emphasize the pending phase.
         </p>
       </div>
       {page === 'todo' && <TodoPage />}
