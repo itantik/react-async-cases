@@ -299,7 +299,7 @@ Aborted case does not change any of the `value`, `error`, `state` values returne
 
 You saw the use of aborting in the `LoadTodosCase` example. When we type a few characters in the filter input field, a series of request is sent. To prevent a request race, we need to abort old requests every time a new character is typed.
 
-### 8. Usage with state management libraries
+### 8. Usage With State Management Libraries
 
 In general, when a case requires an external dependency, we can pass that dependency as a parameter in the case constructor.
 
