@@ -1,4 +1,4 @@
-import { Err, err, Ok, ok, Result } from '../lib/main';
+import { asyncResult, Err, err, Ok, ok, Result } from '../lib/main';
 
 function createResult(isOk: boolean): Result<number, string> {
   if (isOk) {
@@ -26,7 +26,7 @@ test('create Err Result', () => {
   expect(result.isErr() && result.error).toBe('It failed');
 });
 
-describe('ok() creates an instance of Ok', () => {
+describe('ok() creates an Ok instance', () => {
   test.each([undefined, null, 1, false, true, 'hello'])('ok(%s)', (value) => {
     const okValue = ok(value);
 
@@ -35,11 +35,55 @@ describe('ok() creates an instance of Ok', () => {
   });
 });
 
-test('err() creates an instance of Err', () => {
+test('err() creates an Err instance', () => {
   const errObj = new Error('It failed');
   const errResult = err(errObj);
 
   expect(errResult).toBeInstanceOf(Err);
   expect(errResult.error).toBeInstanceOf(Error);
   expect(errResult.error).toStrictEqual(errObj);
+});
+
+test('asyncResult() returns an Ok instance', async () => {
+  const fn = () => Promise.resolve(1);
+  const result = asyncResult(fn);
+
+  expect(result).toBeInstanceOf(Promise);
+  const res = await result;
+  expect(res).toBeInstanceOf(Ok);
+  expect(res.isOk()).toBe(true);
+  expect(res.isErr()).toBe(false);
+  if (res.isOk()) {
+    expect(res.value).toBe(1);
+  }
+});
+
+test('asyncResult() returns an Err instance', async () => {
+  const fn = () => Promise.reject(new Error('It failed'));
+  const result = asyncResult(fn);
+
+  expect(result).toBeInstanceOf(Promise);
+  const res = await result;
+  expect(res).toBeInstanceOf(Err);
+  expect(res.isOk()).toBe(false);
+  expect(res.isErr()).toBe(true);
+  if (res.isErr()) {
+    expect(res.error).toBeInstanceOf(Error);
+    expect((res.error as Error).message).toBe('It failed');
+  }
+});
+
+test('asyncResult() with errorFactory returns an Err instance', async () => {
+  const fn = () => Promise.reject(new Error('It failed'));
+  const result = asyncResult(fn, () => new Error('Custom error message'));
+
+  expect(result).toBeInstanceOf(Promise);
+  const res = await result;
+  expect(res).toBeInstanceOf(Err);
+  expect(res.isOk()).toBe(false);
+  expect(res.isErr()).toBe(true);
+  if (res.isErr()) {
+    expect(res.error).toBeInstanceOf(Error);
+    expect(res.error.message).toBe('Custom error message');
+  }
 });

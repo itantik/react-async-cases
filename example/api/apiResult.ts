@@ -1,19 +1,13 @@
-import { asyncResult, err, ok } from '../../lib/Result';
+import { asyncResult } from '../../lib/Result';
 
-export async function apiResult<T>(fn: () => Promise<T>) {
-  try {
-    const response = await fn();
-    return ok(response);
-  } catch (e) {
-    const error = e instanceof Error ? e : new Error('Unexpected API error');
-    return err(error);
-  }
-}
-
-export function apiResult2<T>(fn: () => Promise<T>) {
+/**
+ * Uses asyncResult function from the library. It returns a Result instance.
+ * The errorFactory function is used to create a custom error type.
+ */
+export function apiResult<T>(fn: () => Promise<T>) {
   return asyncResult(fn, errorFactory);
 }
 
 function errorFactory(error: unknown) {
-  return error instanceof Error ? error : new Error(String(error));
+  return error instanceof Error ? error : new Error('API error: ' + String(error));
 }
