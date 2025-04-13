@@ -40,19 +40,21 @@ export function err<E>(error: E): Err<E> {
 
 export async function asyncResult<V, E>(
   asyncFn: () => Promise<V>,
-  errorFactory: (error: unknown) => E,
+  errorFactory?: (error: unknown) => E | Err<E>,
 ) {
   try {
     return ok(await asyncFn());
   } catch (e) {
-    return err(errorFactory(e));
+    const error = errorFactory ? errorFactory(e) : (e as E | Err<E>);
+    return error instanceof Err ? error : err(error);
   }
 }
 
-export function syncResult<V, E>(syncFn: () => V, errorFactory: (error: unknown) => E) {
+export function syncResult<V, E>(syncFn: () => V, errorFactory?: (error: unknown) => E | Err<E>) {
   try {
     return ok(syncFn());
   } catch (e) {
-    return err(errorFactory(e));
+    const error = errorFactory ? errorFactory(e) : (e as E | Err<E>);
+    return error instanceof Err ? error : err(error);
   }
 }

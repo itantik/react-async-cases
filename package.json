@@ -1,12 +1,12 @@
 {
   "name": "react-async-cases",
   "description": "Separating async use-case logic from the UI in React applications.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Stanislav Antoš",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/itantik/react-async-cases.git"
+    "url": "git+https://github.com/itantik/react-async-cases.git"
   },
   "homepage": "https://github.com/itantik/react-async-cases",
   "type": "module",

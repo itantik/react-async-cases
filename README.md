@@ -19,7 +19,7 @@ Simple example:
 export class LoadTodosCase implements Case {
   async execute() {
     // send API request
-    const result = await apiResult(() => axios.get('/todos'));
+    const result = await asyncResult(() => axios.get('/todos'));
 
     if (result.isErr()) {
       // we can do something with the result.error
@@ -85,7 +85,7 @@ The case is separated from the rest of the application. It declares all its depe
 
 ### 2. Case Result
 
-The `execute` method **must not throw an exception**. Instead, it returns a `Result` object, which is a union type of a success or error value.
+The `execute` method of the `Case` object **must not throw an exception**. Instead, it returns a `Result` object, which is a union type of a success or error value.
 
 ```typescript
 type Result<V, E> = Ok<V> | Err<E>;
@@ -96,6 +96,13 @@ The `Ok` object wraps a `value` and offers it via the `result.value` getter.
 The `Err` object wraps an `error` and offers it via the `result.error` getter.
 
 Both `Ok` and `Err` objects implement `isOk()` and `isErr()` methods, which act as type guards.
+
+Although it is fine to use a constructor to create an instance of `Ok` or `Err`, you can also use prepared helper functions:
+
+- `ok(value: V)` returns `Ok<V>` instance
+- `err(error: E)` returns `Err<E>` instance
+- `asyncResult(asyncFn, errorFactory)` calls the asynchronous function `asyncFn()`, catches any exceptions and returns `Promise` with `Ok<V> | Err<E>` value. Optional `errorFactory` function may transform an error into a custom object.
+- `syncResult(syncFn, errorFactory)` calls the synchronous function `syncFn()`, catches any exceptions and returns `Ok<V> | Err<E>` instance. Optional `errorFactory` function may transform an error into a custom object.
 
 Examples of creating a `Result` instance:
 
@@ -127,37 +134,18 @@ if (errResult.isOk()) {
 
 ### 3. Case Creation
 
-First, we'll create a generic helper function. It sends an API request as async function and then returns a Result. It does not throw an exception. And in addition, an error is strictly typed.
-
-Sure, we can wrap the async function in a try/catch block in each case, but this helper function is reusable and will make our code more readable.
-
-```typescript
-import { err, ok } from 'react-async-cases';
-
-export async function apiResult<T>(fn: () => Promise<T>) {
-  try {
-    const response = await fn();
-    return ok(response);
-  } catch (e) {
-    const error = e instanceof Error ? e : new Error('Unexpected API error');
-    return err(error);
-  }
-}
-```
-
-Now we will use it in the Case.
+Let's make an example case for getting a todo list from a REST API service. We will use the prepared `asyncResult` function, which calls an asynchronous API request and promises a `Result` instance. It does not throw an exception.
 
 ```typescript
 import axios from 'axios';
-import { Case } from 'react-async-cases';
-import { apiResult } from './apiResult';
+import { asyncResult, Case } from 'react-async-cases';
 
 export class LoadTodosCase implements Case {
   constructor(private abortController: AbortController = new AbortController()) {}
 
   async execute(filter: string) {
     // send API request
-    const result = await apiResult(() => axios.get('/todos', { params: { filter } }));
+    const result = await asyncResult(() => axios.get('/todos', { params: { filter } }));
 
     if (result.isErr()) {
       // we can do something with result.error
@@ -182,8 +170,6 @@ export class LoadTodosCase implements Case {
   }
 }
 ```
-
-No exceptions, just a simple object.
 
 ### 4. Connection With a Component
 
@@ -264,7 +250,7 @@ Example:
 export class AddTodoItemCase implements Case {
   async execute(todoItem: Todo) {
     // post a new item
-    const result = await apiResult(() => axios.post('/todo/add', todoItem);
+    const result = await asyncResult(() => axios.post('/todo/add', todoItem);
 
 
     if (result.isErr()) {
@@ -332,7 +318,7 @@ export class LoadTodosCase implements Case {
     const filter = this.appStore.getState().todo.filter;
 
     // send API request
-    const result = await apiResult(() => TodoApiService.list(filter));
+    const result = await asyncResult(() => TodoApiService.list(filter));
 
     if (result.isErr()) {
       // log error
@@ -363,7 +349,7 @@ export class LoadTodosCase implements Case {
     const filter = useTodoStore.getState().filter;
 
     // send API request
-    const result = await apiResult(() => TodoApiService.list(filter));
+    const result = await asyncResult(() => TodoApiService.list(filter));
 
     if (result.isErr()) {
       // log error
@@ -526,6 +512,33 @@ The `ok(value)` helper function creates a new instance of the `Ok` class.
 The `err(error)` helper function creates a new instance of the `Err` class.
 
 - `err`: `(error) => Err`
+
+### `asyncResult(asyncFn, errorFactory)`
+
+The `asyncResult(asyncFn, errorFactory)` helper function wraps the asynchronous function call, catches any exceptions, and returns a `Promise` with `Ok | Err` value.
+
+- `asyncFn`: `() => Promise<V>`
+- `errorFactory?`: `(error: unknown) => E | Err<E>` - optional function can transform an error to custom error object
+
+Simple example:
+
+```typescript
+const getTodos = () => axios.get<Todo[]>('/todos');
+const apiData = await asyncResult(getTodos);
+// apiData is of type Ok<Todo[]> | Err<unknown>
+```
+
+Example with `errorFactory`:
+
+```typescript
+const getTodos = () => axios.get<Todo[]>('/todos');
+const apiData = await asyncResult(getTodos, (error: unknown) => new MyApiError(error));
+// apiData is of type Ok<Todo[]> | Err<MyApiError>
+```
+
+### `syncResult(syncFn, errorFactory)`
+
+Synchronous variant of the `asyncResult` function.
 
 ### `useAsyncState()`
 
