@@ -6,7 +6,7 @@ import { TodoList } from './components/TodoList';
 import { Filter } from './components/Filter';
 import { useLoadTodos } from './features/loadTodos/useLoadTodos';
 
-export function TodoPage() {
+export function ReactTodoPage() {
   const [filter, setFilter] = useState('');
 
   const { state, error, value, run, abort } = useLoadTodos(filter);
@@ -20,7 +20,7 @@ export function TodoPage() {
   return (
     <div className="page">
       <h1>Todo List</h1>
-      <p>Example with React useState</p>
+      <p>Example with React useState() hook.</p>
       <Filter filter={filter} onChange={setFilter} />
       {state.isPending ? <Loader>...loading...</Loader> : <Loader>&nbsp;</Loader>}
       {!state.isPending && error && <ErrorBox>{String(error)}</ErrorBox>}

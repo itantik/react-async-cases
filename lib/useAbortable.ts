@@ -34,26 +34,6 @@ export function useAbortable(concurrentPriority: ConcurrentPriorityType = Concur
   });
   const { abort, watched, unwatch } = actions;
 
-  // const abort = useCallback(() => {
-  //   let item;
-  //   while ((item = abortableItemsRef.current.shift())) {
-  //     if (item.onAbort) {
-  //       item.onAbort();
-  //     }
-  //   }
-  // }, []);
-
-  // const watched = useCallback((item: Abortable) => {
-  //   return abortableItemsRef.current.includes(item);
-  // }, []);
-
-  // const unwatch = useCallback((item: Abortable) => {
-  //   const ind = abortableItemsRef.current.indexOf(item);
-  //   if (ind >= 0) {
-  //     abortableItemsRef.current.splice(ind, 1);
-  //   }
-  // }, []);
-
   const watch = useCallback(
     (item: Abortable) => {
       unwatch(item);

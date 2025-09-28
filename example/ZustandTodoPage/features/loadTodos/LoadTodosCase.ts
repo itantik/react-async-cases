@@ -14,7 +14,7 @@ export class LoadTodosCase implements Case {
 
     if (result.isErr()) {
       // log error
-      console.log('LoadTodosCase error:', result.error);
+      console.error('LoadTodosCase error:', result.error.message);
       return result;
     }
 

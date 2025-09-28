@@ -10,7 +10,7 @@ export class AddTodoCase implements Case {
 
     if (result.isErr()) {
       // log error
-      console.log('AddTodoCase error:', result.error);
+      console.error('AddTodoCase error:', result.error.message);
     }
 
     return result;

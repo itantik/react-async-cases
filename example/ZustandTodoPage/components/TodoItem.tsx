@@ -14,7 +14,7 @@ export function TodoItem({ todo, onChange }: Props) {
   const handleRemove = async () => {
     const result = await run(id);
     if (result.isErr()) {
-      alert(`Removing failed: ${result.error}`);
+      alert(`Removing failed: ${result.error.message}`);
     }
     onChange();
   };

@@ -17,7 +17,7 @@ export function ReduxTodoPage() {
   return (
     <div className="page">
       <h1>Todo List</h1>
-      <p>Example with Redux store</p>
+      <p>Example with Redux store.</p>
       <Filter />
       {state.isPending ? <Loader>...loading...</Loader> : <Loader>&nbsp;</Loader>}
       {!state.isPending && error && <ErrorBox>{String(error)}</ErrorBox>}

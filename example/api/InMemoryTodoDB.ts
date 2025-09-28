@@ -31,7 +31,7 @@ export const InMemoryTodoDB = {
       throw new Error('ID is required');
     }
     if (!todoDB.list.some(({ id }) => id === itemId)) {
-      throw new Error('Item not found');
+      throw new Error(`Item with ID "${itemId}" not found`);
     }
     todoDB.list = todoDB.list.filter(({ id }) => id !== itemId);
   },
