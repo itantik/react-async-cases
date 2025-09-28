@@ -1,4 +1,4 @@
-import { asyncResult, Err, err, Ok, ok, Result } from '../lib/main';
+import { Err, Ok, Result } from '../lib/main';
 
 function createResult(isOk: boolean): Result<number, string> {
   if (isOk) {
@@ -28,7 +28,7 @@ test('create Err Result', () => {
 
 describe('ok() creates an Ok instance', () => {
   test.each([undefined, null, 1, false, true, 'hello'])('ok(%s)', (value) => {
-    const okValue = ok(value);
+    const okValue = Result.ok(value);
 
     expect(okValue).toBeInstanceOf(Ok);
     expect(okValue.value).toBe(value);
@@ -37,7 +37,7 @@ describe('ok() creates an Ok instance', () => {
 
 test('err() creates an Err instance', () => {
   const errObj = new Error('It failed');
-  const errResult = err(errObj);
+  const errResult = Result.err(errObj);
 
   expect(errResult).toBeInstanceOf(Err);
   expect(errResult.error).toBeInstanceOf(Error);
@@ -46,7 +46,7 @@ test('err() creates an Err instance', () => {
 
 test('asyncResult() returns an Ok instance', async () => {
   const fn = () => Promise.resolve(1);
-  const result = asyncResult(fn);
+  const result = Result.async(fn);
 
   expect(result).toBeInstanceOf(Promise);
   const res = await result;
@@ -60,7 +60,7 @@ test('asyncResult() returns an Ok instance', async () => {
 
 test('asyncResult() returns an Err instance', async () => {
   const fn = () => Promise.reject(new Error('It failed'));
-  const result = asyncResult(fn);
+  const result = Result.async(fn);
 
   expect(result).toBeInstanceOf(Promise);
   const res = await result;
@@ -75,7 +75,7 @@ test('asyncResult() returns an Err instance', async () => {
 
 test('asyncResult() with errorFactory returns an Err instance', async () => {
   const fn = () => Promise.reject(new Error('It failed'));
-  const result = asyncResult(fn, () => new Error('Custom error message'));
+  const result = Result.async(fn, () => new Error('Custom error message'));
 
   expect(result).toBeInstanceOf(Promise);
   const res = await result;

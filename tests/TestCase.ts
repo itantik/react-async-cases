@@ -1,4 +1,4 @@
-import { Case, err, ok } from '../lib/main';
+import { Case, Result } from '../lib/main';
 import { waitPlease } from './testUtils';
 
 type TestCaseOptions = { testOption: string };
@@ -16,24 +16,24 @@ export class TestCase implements Case {
 
   async execute(params: { runParam: number }) {
     if (this.aborted()) {
-      return err(new Error('Aborted'));
+      return Result.err(new Error('Aborted'));
     }
 
     await waitPlease(10);
 
     if (this.aborted()) {
-      return err(new Error('Aborted'));
+      return Result.err(new Error('Aborted'));
     }
 
     switch (this.options.testOption) {
       case 'once':
-        return ok(`Once - ${params.runParam}`);
+        return Result.ok(`Once - ${params.runParam}`);
       case 'double':
-        return ok(`Double - ${params.runParam * 2}`);
+        return Result.ok(`Double - ${params.runParam * 2}`);
       case 'triple':
-        return ok(`Triple - ${params.runParam * 3}`);
+        return Result.ok(`Triple - ${params.runParam * 3}`);
       default:
-        return err(new Error('Invalid testOption value'));
+        return Result.err(new Error('Invalid testOption value'));
     }
   }
 

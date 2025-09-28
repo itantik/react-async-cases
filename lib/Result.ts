@@ -28,8 +28,6 @@ export class Err<E> {
   }
 }
 
-export type Result<V, E> = Ok<V> | Err<E>;
-
 export function ok<V>(value: V): Ok<V> {
   return new Ok(value);
 }
@@ -58,3 +56,12 @@ export function syncResult<V, E>(syncFn: () => V, errorFactory?: (error: unknown
     return error instanceof Err ? error : err(error);
   }
 }
+
+export type Result<V, E> = Ok<V> | Err<E>;
+
+export const Result = {
+  ok,
+  err,
+  async: asyncResult,
+  sync: syncResult,
+};

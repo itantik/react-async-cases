@@ -1,11 +1,11 @@
-import { asyncResult } from '../../lib/Result';
+import { Result } from '../../lib/Result';
 
 /**
- * Uses asyncResult function from the library. It returns a Result instance.
+ * Returns a Result instance.
  * The errorFactory function is used to create a custom error type.
  */
 export function apiResult<T>(fn: () => Promise<T>) {
-  return asyncResult(fn, errorFactory);
+  return Result.async(fn, errorFactory);
 }
 
 function errorFactory(error: unknown) {

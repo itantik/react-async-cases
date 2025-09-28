@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 
 // https://vite.dev/config/
 export default defineConfig({
-  // root: 'example',
   publicDir: false,
   plugins: [
     react(),

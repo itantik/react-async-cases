@@ -1,27 +1,39 @@
 import { useState } from 'react';
-import { TodoPage } from './TodoPage/TodoPage';
+import { ReactTodoPage } from './ReactTodoPage/ReactTodoPage';
 import { ZustandTodoPage } from './ZustandTodoPage/ZustandTodoPage';
 import { ReduxTodoPage } from './ReduxTodoPage/ReduxTodoPage';
+import { DELAY_MAX, DELAY_MIN } from './api/delayedResponse';
 
 export function App() {
-  const [page, setPage] = useState<'todo' | 'zustand' | 'redux'>('todo');
+  const [page, setPage] = useState<'react' | 'zustand' | 'redux'>('react');
 
   return (
     <div className="page-columns">
       <div className="page page-left">
         <h1>Example</h1>
+        <p>How to use the 'react-async-cases':</p>
         <ul>
           <li>
-            Example of how to use the 'react-async-cases' <strong>with React useState</strong>.{' '}
-            {page !== 'todo' && <button onClick={() => setPage('todo')}>Show me →</button>}
+            <strong>
+              with React useState(){' '}
+              {page === 'react' ? '→' : <button onClick={() => setPage('react')}>Show me</button>}
+            </strong>
           </li>
           <li>
-            Example of how to use the 'react-async-cases' <strong>with Zustand store</strong>.{' '}
-            {page !== 'zustand' && <button onClick={() => setPage('zustand')}>Show me →</button>}
+            <strong>
+              with Zustand store{' '}
+              {page === 'zustand' ? (
+                '→'
+              ) : (
+                <button onClick={() => setPage('zustand')}>Show me</button>
+              )}
+            </strong>
           </li>
           <li>
-            Example of how to use the 'react-async-cases' <strong>with Redux store</strong>.{' '}
-            {page !== 'redux' && <button onClick={() => setPage('redux')}>Show me →</button>}
+            <strong>
+              with Redux store{' '}
+              {page === 'redux' ? '→' : <button onClick={() => setPage('redux')}>Show me</button>}
+            </strong>
           </li>
         </ul>
         <p className="note">
@@ -29,11 +41,12 @@ export function App() {
           state management libraries.
         </p>
         <p className="note">
-          Asynchronous requests are simulated with random delays to emphasize the pending phase.
+          Asynchronous requests are simulated with random delays ({`${DELAY_MIN}-${DELAY_MAX} ms`})
+          to emphasize the pending phase.
         </p>
-        <p className="note">Open the development tools and view the app logs in the console.</p>
+        <p className="note">Open the development tools and watch the app logs in the console.</p>
       </div>
-      {page === 'todo' && <TodoPage />}
+      {page === 'react' && <ReactTodoPage />}
       {page === 'zustand' && <ZustandTodoPage />}
       {page === 'redux' && <ReduxTodoPage />}
     </div>

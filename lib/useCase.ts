@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Abortable } from './Abortable';
-import { Result } from './Result';
+import { type Result } from './Result';
 import { useAbortable } from './useAbortable';
 
 export type CaseResult<Res, Err> = Promise<Result<Res, Err>>;

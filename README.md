@@ -9,8 +9,9 @@ Features:
 - `useCase` hook - separating async use-cases
 - `useCaseState` hook - separating async use-cases and async state monitoring
 - `Result<Value, Error>` type - bypassing exception handling
+- `Result` object - helpers for creating an instance of `Result` type
 - `useAsynState` hook - storing async state and resulting value
-- abortable execution of the Case
+- abortable execution of the `Case`
 
 Simple example:
 
@@ -19,7 +20,7 @@ Simple example:
 export class LoadTodosCase implements Case {
   async execute() {
     // send API request
-    const result = await asyncResult(() => axios.get('/todos'));
+    const result = await Result.async(() => axios.get('/todos'));
 
     if (result.isErr()) {
       // we can do something with the result.error
@@ -85,7 +86,7 @@ The case is separated from the rest of the application. It declares all its depe
 
 ### 2. Case Result
 
-The `execute` method of the `Case` object **must not throw an exception**. Instead, it returns a `Result` object, which is a union type of a success or error value.
+The `execute` method of the `Case` object **must not throw an exception**. Instead, it returns an object of `Result` type, which is a union type of a success or error value.
 
 ```typescript
 type Result<V, E> = Ok<V> | Err<E>;
@@ -97,20 +98,20 @@ The `Err` object wraps an `error` and offers it via the `result.error` getter.
 
 Both `Ok` and `Err` objects implement `isOk()` and `isErr()` methods, which act as type guards.
 
-Although it is fine to use a constructor to create an instance of `Ok` or `Err`, you can also use prepared helper functions:
+Although it is fine to use a constructor to create an instance of `Ok` or `Err`, you can also use prepared helper functions. `Result` object aggregates all helper functions.
 
-- `ok(value: V)` returns `Ok<V>` instance
-- `err(error: E)` returns `Err<E>` instance
-- `asyncResult(asyncFn, errorFactory)` calls the asynchronous function `asyncFn()`, catches any exceptions and returns `Promise` with `Ok<V> | Err<E>` value. Optional `errorFactory` function may transform an error into a custom object.
-- `syncResult(syncFn, errorFactory)` calls the synchronous function `syncFn()`, catches any exceptions and returns `Ok<V> | Err<E>` instance. Optional `errorFactory` function may transform an error into a custom object.
+- `Result.ok(value: V)` returns `Ok<V>` instance
+- `Result.err(error: E)` returns `Err<E>` instance
+- `Result.async(asyncFn, errorFactory)` calls the asynchronous function `asyncFn()`, catches any exceptions and returns `Promise` with `Ok<V> | Err<E>` value. Optional `errorFactory` function may transform an error into a custom object.
+- `Result.sync(syncFn, errorFactory)` calls the synchronous function `syncFn()`, catches any exceptions and returns `Ok<V> | Err<E>` instance. Optional `errorFactory` function may transform an error into a custom object.
 
-Examples of creating a `Result` instance:
+Examples of creating an instance of the `Result` type:
 
 ```typescript
-import { ok, err } from 'react-async-cases';
+import { Result } from 'react-async-cases';
 
 // Ok result
-const okResult = ok('success');
+const okResult = Result.ok('success');
 
 if (okResult.isOk()) {
   console.log(okResult.value); // -> 'success'
@@ -121,7 +122,7 @@ if (okResult.isErr()) {
 }
 
 // Err result
-const errResult = err('error message');
+const errResult = Result.err('error message');
 
 if (errResult.isErr()) {
   console.log(errResult.error); // -> 'error message'
@@ -134,18 +135,18 @@ if (errResult.isOk()) {
 
 ### 3. Case Creation
 
-Let's make an example case for getting a todo list from a REST API service. We will use the prepared `asyncResult` function, which calls an asynchronous API request and promises a `Result` instance. It does not throw an exception.
+Let's make an example case for getting a todo list from a REST API service. We will use the prepared `Result.async()` function, which calls an asynchronous API request and promises an instance of `Result` type. It does not throw an exception.
 
 ```typescript
 import axios from 'axios';
-import { asyncResult, Case } from 'react-async-cases';
+import { Result, Case } from 'react-async-cases';
 
 export class LoadTodosCase implements Case {
   constructor(private abortController: AbortController = new AbortController()) {}
 
   async execute(filter: string) {
     // send API request
-    const result = await asyncResult(() => axios.get('/todos', { params: { filter } }));
+    const result = await Result.acync(() => axios.get('/todos', { params: { filter } }));
 
     if (result.isErr()) {
       // we can do something with result.error
@@ -194,7 +195,7 @@ const anotherCase = useCaseState(() => new AnotherCase(additionalDependency));
 
 `useCase` and `useCaseState` returns a `run` function. React component can call this `run` function to execute the case.
 
-Internally, the `run` function creates an instance of the `Case` object using its factory method, then calls the `execute` function with arguments passed to `run` function, and finally returns the `Result` object.
+Internally, the `run` function creates an instance of the `Case` object using its factory method, then calls the `execute` function with arguments passed to `run` function, and finally returns an instance of `Result` type.
 
 Additionally, the `useCaseState` hook returns a `state` object, so the component can monitor the state of the async process.
 
@@ -250,7 +251,7 @@ Example:
 export class AddTodoItemCase implements Case {
   async execute(todoItem: Todo) {
     // post a new item
-    const result = await asyncResult(() => axios.post('/todo/add', todoItem);
+    const result = await Result.async(() => axios.post('/todo/add', todoItem);
 
 
     if (result.isErr()) {
@@ -318,7 +319,7 @@ export class LoadTodosCase implements Case {
     const filter = this.appStore.getState().todo.filter;
 
     // send API request
-    const result = await asyncResult(() => TodoApiService.list(filter));
+    const result = await Result.async(() => TodoApiService.list(filter));
 
     if (result.isErr()) {
       // log error
@@ -349,7 +350,7 @@ export class LoadTodosCase implements Case {
     const filter = useTodoStore.getState().filter;
 
     // send API request
-    const result = await asyncResult(() => TodoApiService.list(filter));
+    const result = await Result.async(() => TodoApiService.list(filter));
 
     if (result.isErr()) {
       // log error
@@ -388,7 +389,7 @@ $ npm run dev
 
 ## API
 
-### `useCaseState(caseFactory)`
+### Hook `useCaseState(caseFactory)`
 
 The `useCaseState(caseFactory)` hook returns `run` and `abort` methods and values for state monitoring.
 
@@ -406,8 +407,8 @@ Case controlling:
 
 Async state monitoring:
 
-- `value`: resolved promise value from the `run` method, it is unwrapped `value` of the `Result` object
-- `error`: rejected promise value from the `run` method, it is unwrapped `error` of the `Result` object
+- `value`: resolved promise value from the `run` method, it is unwrapped `value` of the `Ok` type
+- `error`: rejected promise value from the `run` method, it is unwrapped `error` of the `Err` type
 - `state`: state object
   - `state`: 'initial' | 'pending' | 'resolved' | 'rejected'
   - `isInitial`: boolean - true when no `run` has started
@@ -421,7 +422,7 @@ Async state monitoring:
   - `reject`: `(error) => void` - marks the state as 'rejected' and sets the rejected `error` value
   - `reset`: `() => void` - marks the state as 'initial' and resets `value` and `error`
 
-### `useCase(caseFactory)`
+### Hook `useCase(caseFactory)`
 
 The `useCase(caseFactory)` hook returns `run` and `abort` methods.
 
@@ -434,16 +435,16 @@ The `useCase(caseFactory)` hook returns `run` and `abort` methods.
 - `run`: `async (params) => Promise<Result>`
 - `abort`: `() => void`
 
-### `Case`
+### Interface `Case`
 
 The `Case` is interface.
 
 **Methods**
 
-- `execute`: `async (params) => Result` - async function returns the `Result` object. It must not throw an exception. The `run` method of the hooks calls the `execute` method of the case.
+- `execute`: `async (params) => Result` - async function returns an object of `Result` type. It must not throw an exception. The `run` method of the hooks calls the `execute` method of the case.
 - `onAbort`: `() => void` - method is optional. The `abort` method of the hooks calls the `onAbort` method of the case.
 
-### `Result`
+### Type `Result`
 
 `Result` is a union type of the `Ok` or `Err` value.
 
@@ -451,7 +452,7 @@ The `Case` is interface.
 type Result<V, E> = Ok<V> | Err<E>;
 ```
 
-### `Ok`
+### Class `Ok`
 
 Class `Ok` wraps a `value` of any type. To create a new instance, you can use the constructor or helper function `ok(value)`.
 
@@ -476,7 +477,7 @@ const result = ok({ title: 'Success' });
 - `isOk()`: type guard, returns true
 - `isErr()`: type guard, returns false
 
-### `Err`
+### Class `Err`
 
 Class `Err` wraps an `error` of any type. To create a new instance, you can use the constructor or helper function `err(error)`.
 
@@ -501,46 +502,7 @@ const result = err({ reason: 'Bad credentials' });
 - `isOk()`: type guard, returns false
 - `isErr()`: type guard, returns true
 
-### `ok(value)`
-
-The `ok(value)` helper function creates a new instance of the `Ok` class.
-
-- `ok`: `(value) => Ok`
-
-### `err(error)`
-
-The `err(error)` helper function creates a new instance of the `Err` class.
-
-- `err`: `(error) => Err`
-
-### `asyncResult(asyncFn, errorFactory)`
-
-The `asyncResult(asyncFn, errorFactory)` helper function wraps the asynchronous function call, catches any exceptions, and returns a `Promise` with `Ok | Err` value.
-
-- `asyncFn`: `() => Promise<V>`
-- `errorFactory?`: `(error: unknown) => E | Err<E>` - optional function can transform an error to custom error object
-
-Simple example:
-
-```typescript
-const getTodos = () => axios.get<Todo[]>('/todos');
-const apiData = await asyncResult(getTodos);
-// apiData is of type Ok<Todo[]> | Err<unknown>
-```
-
-Example with `errorFactory`:
-
-```typescript
-const getTodos = () => axios.get<Todo[]>('/todos');
-const apiData = await asyncResult(getTodos, (error: unknown) => new MyApiError(error));
-// apiData is of type Ok<Todo[]> | Err<MyApiError>
-```
-
-### `syncResult(syncFn, errorFactory)`
-
-Synchronous variant of the `asyncResult` function.
-
-### `useAsyncState()`
+### Hook `useAsyncState()`
 
 `useAsyncState()` helps to monitor the state of an async process. Hook stores the result value or error of an async process and its current state. It does not control the process itself.
 
@@ -560,6 +522,49 @@ Synchronous variant of the `asyncResult` function.
   - `resolve`: `(value) => void` - marks the state as 'resolved' and sets the resolved `value`
   - `reject`: `(error) => void` - marks the state as 'rejected' and sets the rejected `error` value
   - `reset`: `() => void` - marks the state as 'initial' and resets `value` and `error` to `undefined`
+
+## Helpers
+
+To create instances of the `Result` type, you can use either separate methods or a helper object `Result` that aggregates them all.
+
+### `Result.ok(value)` alias `ok(value)`
+
+The `ok(value)` helper function creates a new instance of the `Ok` class.
+
+- `ok`: `(value) => Ok`
+
+### `Result.err(error)` alias `err(error)`
+
+The `err(error)` helper function creates a new instance of the `Err` class.
+
+- `err`: `(error) => Err`
+
+### `Result.async(asyncFn, errorFactory)` alias `asyncResult(asyncFn, errorFactory)`
+
+The `asyncResult(asyncFn, errorFactory)` helper function wraps the asynchronous function call, catches any exceptions, and returns a `Promise` with `Ok | Err` value.
+
+- `asyncFn`: `() => Promise<V>`
+- `errorFactory?`: `(error: unknown) => E | Err<E>` - optional function can transform an error to custom error object
+
+Simple example:
+
+```typescript
+const getTodos = () => axios.get<Todo[]>('/todos');
+const apiData = await Result.async(getTodos);
+// apiData is of type Ok<Todo[]> | Err<unknown>
+```
+
+Example with `errorFactory`:
+
+```typescript
+const getTodos = () => axios.get<Todo[]>('/todos');
+const apiData = await Result.async(getTodos, (error: unknown) => new MyApiError(error));
+// apiData is of type Ok<Todo[]> | Err<MyApiError>
+```
+
+### `Result.sync(syncFn, errorFactory)` alias `syncResult(syncFn, errorFactory)`
+
+Synchronous variant of the `asyncResult` function.
 
 ## License
 

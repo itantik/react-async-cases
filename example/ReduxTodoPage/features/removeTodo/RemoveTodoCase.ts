@@ -12,7 +12,7 @@ export class RemoveTodoCase implements Case {
 
     if (result.isErr()) {
       // log error
-      console.log('RemoveTodoCase error:', result.error);
+      console.error('RemoveTodoCase error:', result.error.message);
       return result;
     }
 

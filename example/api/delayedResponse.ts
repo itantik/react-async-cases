@@ -1,5 +1,5 @@
-const DELAY_MIN = 1000;
-const DELAY_MAX = 2000;
+export const DELAY_MIN = 1000;
+export const DELAY_MAX = 2000;
 function randomDelay() {
   return Math.floor(Math.random() * (DELAY_MAX - DELAY_MIN + 1) + DELAY_MIN);
 }
@@ -12,13 +12,13 @@ function randomDelay() {
 export function delayedResponse<Res>(apiFn: () => Res, abortSignal?: AbortSignal) {
   return new Promise<Res>((resolve, reject) => {
     if (abortSignal?.aborted) {
-      return reject(new Error('canceled'));
+      return reject(new Error('API canceled'));
     }
     setTimeout(() => {
       try {
         const result = apiFn();
         if (abortSignal?.aborted) {
-          throw new Error('canceled');
+          throw new Error('API canceled');
         }
         return resolve(result);
       } catch (e) {

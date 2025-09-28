@@ -23,6 +23,20 @@ body {
 .page.page-left {
   text-align: left;
 }
+.page.page-left button {
+  padding: .2em .7em;
+  color: rgb(100, 100, 100);
+  background-color: rgb(235, 235, 235);
+  border: 1px solid rgb(200, 200, 200);
+  border-bottom: 1px solid rgb(150, 150, 150);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.page.page-left button:hover:enabled,
+.page.page-left button:focus:enabled {
+  background-color: rgb(200, 200, 200);
+  color: rgb(0, 0, 0);
+}
 
 li {
   margin-bottom: 1em;
