@@ -20,7 +20,7 @@ export function ReactTodoPage() {
   return (
     <div className="page">
       <h1>Todo List</h1>
-      <p>Example with React useState() hook.</p>
+      <h2>With React useState()</h2>
       <Filter filter={filter} onChange={setFilter} />
       {state.isPending ? <Loader>...loading...</Loader> : <Loader>&nbsp;</Loader>}
       {!state.isPending && error && <ErrorBox>{String(error)}</ErrorBox>}
